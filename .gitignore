@@ -105,3 +105,6 @@ dist
 
 # Ignore test.jpg
 test.jpg
+
+# Personal Notes
+notes.txt

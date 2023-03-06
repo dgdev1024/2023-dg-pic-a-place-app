@@ -37,6 +37,7 @@ model Session {
 model Picture {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   userId        String    @db.ObjectId
+  locationId    String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   url           String    @unique
   score         Int       @default(0)
@@ -44,7 +45,7 @@ model Picture {
 
 model User {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  apiKey            String    @unique
+  apiKey            String?   @unique
   name              String?
   email             String?   @unique
   emailVerified     DateTime?

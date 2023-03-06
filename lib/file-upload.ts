@@ -8,6 +8,7 @@ import * as piexifjs from 'piexifjs';
 import * as streamifier from 'streamifier';
 import * as uuid from 'uuid';
 import { cloudinary } from "./cloudinary";
+import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
 
 export type FormidableParseResult = {
   fields: formidable.Fields;
@@ -54,7 +55,6 @@ export const readThenSanitizeImageTags = async (imageData: Buffer): Promise<Imag
   // Use piexifjs to load the image buffer's EXIF data.
   try {
     const exifData = piexifjs.load(imageData.toString('binary'));
-    console.log(exifData);
 
     // Make sure the image's EXIF data includes geolocation data.
     if (
@@ -119,7 +119,7 @@ export const readThenSanitizeImageTags = async (imageData: Buffer): Promise<Imag
 export const uploadImageData = (
   imageData: Buffer, 
   locationName: string
-) => {
+): Promise<UploadApiResponse | UploadApiErrorResponse> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream({
       folder: `pic-a-place/${locationName}`,

@@ -21,7 +21,7 @@
     "paths": {
       "@pages/*": ["./pages/*"],
       "@api/*": ["./pages/api/*"],
-      "@com/*": ["./components/*"],
+      "@com/*": ["./com/*"],
       "@lib/*": ["./lib/*"],
       "@auth": ["./pages/api/auth/[...nextauth].ts"]
     }

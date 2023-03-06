@@ -1,0 +1,70 @@
+.header {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 10vh;
+  max-height: 80px;
+  color: var(--text-on-dark);
+  background-color: var(--dark-background);
+  z-index: 3;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+  height: 100%;
+  margin: 0px auto;
+}
+
+.headerNavToggle {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  color: var(--text-on-dark);
+  background-color: var(--dark-background);
+  border: none;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: 0.25s;
+}
+
+.headerNavToggle:hover {
+  background-color: var(--dark-background-hover);
+}
+
+.headerNavToggle::before {
+  content: '';
+  position: absolute;
+  top: calc(50% - 2px);
+  left: calc(50% - 12px);
+  width: 24px;
+  height: 4px;
+  transform: rotate(90deg);
+  background-color: var(--text-on-dark);
+  transition-property: transform;
+  transition-duration: 0.25s;
+}
+
+.headerNavToggle::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 2px);
+  left: calc(50% - 12px);
+  width: 24px;
+  height: 4px;
+  transform: rotate(0deg);
+  background-color: var(--text-on-dark);
+  transition-property: transform;
+  transition-duration: 0.25s;
+}
+
+.headerNavToggleShown::before {
+  transform: rotate(45deg);
+}
+
+.headerNavToggleShown::after {
+  transform: rotate(-45deg);
+}

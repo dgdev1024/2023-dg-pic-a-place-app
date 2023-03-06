@@ -1,0 +1,32 @@
+:root {
+  --text-on-dark: hsla(282, 39%, 95%, 1);
+  --text-on-light: hsla(178, 73%, 9%, 1);
+  --light-background: hsla(282, 39%, 95%, 1);
+  --dark-background: hsla(206, 59%, 15%, 1);
+  --dark-background-hover: hsla(206, 59%, 30%, 1);
+  --dark-background-transparent: hsla(206, 59%, 15%, 0.80);
+  --dark-background-transparent-hover: hsla(206, 59%, 30%, 0.80);
+}
+
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  background-color: var(--light-background);
+}
+
+@media (min-width: 800px) {
+  html {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1400px) {
+  html {
+    font-size: 20px;
+  }
+}
