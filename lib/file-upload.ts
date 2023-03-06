@@ -4,7 +4,7 @@
 
 import { NextApiRequest } from "next";
 import formidable from "formidable";
-import ExifReader from 'exifreader';
+import * as piexifjs from 'piexifjs';
 import * as streamifier from 'streamifier';
 import * as uuid from 'uuid';
 import { cloudinary } from "./cloudinary";
@@ -14,12 +14,14 @@ export type FormidableParseResult = {
   files: formidable.Files;
 };
 
-export type ImageGeotagData = {
+export type ImageTagsData = {
   error?: string;
+  status?: number;
   coords?: {
     latitude: number;
     longitude: number;
-  }
+  },
+  sanitizedImageData?: Buffer;
 };
 
 export const ImageMimeTypes: string[] = [
@@ -48,34 +50,70 @@ export const isFileImage = (file: formidable.File): boolean => {
     file.mimetype === mimeType);
 };
 
-export const readImageGeotag = async (imageData: Buffer): Promise<ImageGeotagData> => {
-  // Load the EXIF data from the image.
-  const exifData = await ExifReader.load(imageData);
-  console.log(exifData);
+export const readThenSanitizeImageTags = async (imageData: Buffer): Promise<ImageTagsData> => {
+  // Use piexifjs to load the image buffer's EXIF data.
+  try {
+    const exifData = piexifjs.load(imageData.toString('binary'));
+    console.log(exifData);
 
-  // Ensure that the loaded EXIF data contains coordinate data.
-  if (!exifData.GPSLatitude || !exifData.GPSLongitude) {
-    return { error: "The image uploaded does not contain the proper geolocation data." };
+    // Make sure the image's EXIF data includes geolocation data.
+    if (
+      !exifData.GPS[piexifjs.GPSIFD.GPSLatitude] ||
+      !exifData.GPS[piexifjs.GPSIFD.GPSLongitude] ||
+      !exifData.GPS[piexifjs.GPSIFD.GPSLatitudeRef] ||
+      !exifData.GPS[piexifjs.GPSIFD.GPSLongitudeRef]
+    ) {
+      return {
+        error: "The image uploaded does not contain the proper geolocation data.",
+        status: 400
+      }
+    }
+
+    // Get the GPS location from the EXIF data.
+    let latitude = exifData.GPS[piexifjs.GPSIFD.GPSLatitude];
+    let longitude = exifData.GPS[piexifjs.GPSIFD.GPSLongitude];
+    const latitudeRef = exifData.GPS[piexifjs.GPSIFD.GPSLatitudeRef];
+    const longitudeRef = exifData.GPS[piexifjs.GPSIFD.GPSLongitudeRef];
+
+    // Resolve the latitude and longitude data to degrees.
+    latitude = piexifjs.GPSHelper.dmsRationalToDeg(latitude) *
+      (latitudeRef === 'N' ? 1 : -1);
+    longitude = piexifjs.GPSHelper.dmsRationalToDeg(longitude) *
+      (longitudeRef === 'E' ? 1 : -1);
+
+    // Get the orientation and dimensions of the image.
+    const orientation = exifData['0th'][piexifjs.ImageIFD.Orientation];
+    const dimensions = {
+      x: exifData['Exif'][piexifjs.ExifIFD.PixelXDimension],
+      y: exifData['Exif'][piexifjs.ExifIFD.PixelYDimension]
+    };
+
+    // Create the sanitized EXIF data.
+    const zeroth = {};
+    const exif = {};
+    const gps = {};
+    zeroth[piexifjs.ImageIFD.Orientation] = orientation;
+    exif[piexifjs.ExifIFD.PixelXDimension] = dimensions.x;
+    exif[piexifjs.ExifIFD.PixelYDimension] = dimensions.y;
+    const sanitizedExifData = {
+      "0th": zeroth,
+      "GPS": gps,
+      "Exif": exif
+    };
+    const sanitizedExifBytes = piexifjs.dump(sanitizedExifData);
+
+    // Remove the original EXIF data from the image and insert the sanitized data.
+    let sanitizedImageData = piexifjs.remove(imageData.toString('binary'));
+    sanitizedImageData = piexifjs.insert(sanitizedExifBytes, sanitizedImageData);
+
+    return {
+      coords: { latitude, longitude },
+      sanitizedImageData: Buffer.from(sanitizedImageData, 'binary')
+    };
+  } catch (err) {
+    console.error(err);
+    return { error: "Failed to load EXIF data from image.", status: 500 };
   }
-
-  // console.log(exifData.GPSLatitude, exifData.GPSLongitude);
-  // console.log(exifData.GPSLatitudeRef, exifData.GPSLongitudeRef);
-
-  // Get the coordinate data.
-  let latitude = parseFloat(exifData.GPSLatitude.description);
-  let longitude = parseFloat(exifData.GPSLongitude.description);
-
-  // Get the cardinal directions of the coordinates.
-  const cardinalLatitude = exifData.GPSLatitudeRef.value[0];
-  const cardinalLongitude = exifData.GPSLongitudeRef.value[0];
-
-  // Negate the coordinate datas, if necessary.
-  if (cardinalLatitude === 'S') { latitude *= -1; }
-  if (cardinalLongitude === 'W') { longitude *= -1; }
-
-  return {
-    coords: { latitude, longitude }
-  };
 };
 
 export const uploadImageData = (
@@ -95,74 +133,4 @@ export const uploadImageData = (
 
     streamifier.createReadStream(imageData).pipe(uploadStream);
   });
-};
-
-export const stripImageMetadata = (imageData: Buffer): Buffer => {
-  // Get a data view of the buffer.
-  const dataView = new DataView(imageData.buffer);
-
-  // Make sure that this buffer contains valid JPEG image data.
-  // JPEG data starts with the byte 0xFFD8 and ends with 0xFFD9.
-  if (
-    dataView.getUint16(0x00) !== 0xFFD8 ||
-    dataView.getUint16(dataView.byteLength - 2) !== 0xFFD9
-  ) {
-    return imageData;
-  }
-
-  // Keep track of a byte offset.
-  let offset = 0x02;
-
-  // Keep track of the current application marker.
-  let applicationMarker = dataView.getUint16(offset);
-
-  // Keep an array of bytes making up the sanitized image header.
-  const sanitizedHeaderBytes: number[] = [0xFF, 0xD8];
-
-  // Iterate over the data view until either the end is reached, or the
-  // Start of Stream marker 0xFFDA is found.
-  while (offset < dataView.byteLength) {
-    // If the marker encountered is the Start of Stream marker (0xFFDA), then
-    // that is the end of the header. Break here.
-    if (applicationMarker === 0xFFDA) {
-      break;
-    }
-
-    // If the marker encountered is one of the Application markers (APP1 to APP15
-    // (0xFFE1 to 0xFFEF)), then omit that marker's data.
-    else if (
-      applicationMarker >= 0xFFE1 &&
-      applicationMarker <= 0xFFEF
-    ) {
-      // The two bytes after this marker indicates the size of that marker's data.
-      // Advance the offset by this size plus the two bytes of this marker.
-      offset += 2;
-      offset += dataView.getUint16(offset);
-    }
-
-    else {
-      // Push the two bytes of the marker, first.
-      sanitizedHeaderBytes.push(dataView.getUint8(offset++));
-      sanitizedHeaderBytes.push(dataView.getUint8(offset++));
-
-      // Get the size of the marker's data.
-      const dataLength = dataView.getUint16(offset);
-
-      // Iterate over the bytes of this marker and add them in.
-      for (let index = 0; index < dataLength; ++index) {
-        sanitizedHeaderBytes.push(dataView.getUint8(offset + index));
-      }
-
-      // Advance the offset by the data length.
-      offset += dataLength;
-    }
-    
-    // At this point, the byte offset should be at the location of the next
-    // marker. Get that marker
-    applicationMarker = dataView.getUint16(offset);
-  }
-
-  // Get a subarray of the image data starting at the offset.
-  const actualImageData = Array.from(imageData.subarray(offset));
-  return Buffer.from([...sanitizedHeaderBytes, ...actualImageData]);
 };

@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { File } from 'formidable';
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-import { isFileImage, parseForm, readImageGeotag, stripImageMetadata } from "@lib/file-upload";
+import { isFileImage, parseForm, readThenSanitizeImageTags } from "@lib/file-upload";
 import { readFile } from "fs/promises";
 import { fstat, writeFileSync } from "fs";
 
@@ -37,17 +37,15 @@ const Handler = async (
   }
 
   // Read the contents of the image file and its EXIF data.
-  let imageData = await readFile(imageFile.filepath);
-  const imageGeotag = await readImageGeotag(imageData);
+  const imageData = await readFile(imageFile.filepath);
+  const imageGeotag = await readThenSanitizeImageTags(imageData);
   if (imageGeotag.error) {
-    return res.status(400).json({ error: imageGeotag.error });
+    return res.status(imageGeotag.status || 500).json({ error: imageGeotag.error });
   }
 
-  console.log(imageGeotag);
+  
 
-  // We do not need the EXIF data anymore. Strip it.
-  imageData = stripImageMetadata(imageData);
-  writeFileSync(`${process.cwd()}/test.jpg`, imageData);
+  writeFileSync(`${process.cwd()}/test.jpg`, imageGeotag.sanitizedImageData);
 
   return res.status(200).json({ error: "Good" });
 };
