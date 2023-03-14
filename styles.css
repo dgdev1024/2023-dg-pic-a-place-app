@@ -6,6 +6,24 @@
   --dark-background-hover: hsla(206, 59%, 30%, 1);
   --dark-background-transparent: hsla(206, 59%, 15%, 0.80);
   --dark-background-transparent-hover: hsla(206, 59%, 30%, 0.80);
+
+  --form-default-background: hsl(0, 0%, 80%);
+  --form-default-background-hover: hsl(0, 0%, 95%);
+  --form-default-background-disabled: hsl(0, 0%, 70%);
+  --form-default-text: hsl(0, 0%, 10%);
+  --form-default-text-disabled: hsl(0, 0%, 50%);
+
+  --form-error-background: hsl(0, 100%, 80%);
+  --form-error-background-hover: hsl(0, 100%, 95%);
+  --form-error-text: hsl(0, 100%, 10%);
+
+  --form-ok-background: hsl(125, 100%, 80%);
+  --form-ok-background-hover: hsl(125, 100%, 95%);
+  --form-ok-text: hsl(125, 100%, 10%);
+
+  --form-primary-background: hsl(240, 100%, 80%);
+  --form-primary-background-hover: hsl(240, 100%, 95%);
+  --form-primary-text: hsl(240, 100%, 10%);
 }
 
 * {
@@ -19,9 +37,46 @@ html {
   background-color: var(--light-background);
 }
 
+.section {
+  width: 100vw;
+  height: 100vh;
+  min-height: 600px;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 95%;
+  max-width: 1200px;
+  height: 100%;
+  margin: 0px auto;
+}
+
 @media (min-width: 800px) {
   html {
     font-size: 18px;
+  }
+
+  .container {
+    width: 90%;
+  }
+
+  .containerLeftDesktop {
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 1000px) {
+  .container {
+    width: 85%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: 80%;
   }
 }
 

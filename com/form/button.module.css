@@ -1,0 +1,71 @@
+.button {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  padding: 24px 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition-property: top, left, box-shadow, color, background-color;
+  transition-duration: 0.25s;
+}
+
+.button:focus {
+  outline: none;
+}
+
+.button:active {
+  top: 4px;
+  left: 4px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+}
+
+.buttonPrimary {
+  color: var(--form-primary-text);
+  background-color: var(--form-primary-background);
+}
+
+.buttonPrimary:hover,
+.buttonPrimary:focus {
+  color: var(--text-on-light);
+  background-color: var(--form-primary-background-hover);
+}
+
+.buttonSubmit {
+  color: var(--form-ok-text);
+  background-color: var(--form-ok-background);
+}
+
+.buttonSubmit:hover,
+.buttonSubmit:focus {
+  color: var(--text-on-light);
+  background-color: var(--form-ok-background-hover);
+}
+
+.buttonDanger {
+  color: var(--form-error-text);
+  background-color: var(--form-error-background);
+}
+
+.buttonDanger:hover,
+.buttonDanger:focus {
+  color: var(--text-on-light);
+  background-color: var(--form-error-background-hover);
+}
+
+.buttonDisabled,
+.buttonDisabled:hover,
+.buttonDisabled:focus,
+.buttonDisabled:active
+{
+  top: 0px;
+  left: 0px;
+  color: var(--form-default-text-disabled);
+  background-color: var(--form-default-background-disabled);
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.3);
+  cursor: not-allowed;
+}

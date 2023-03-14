@@ -1,0 +1,46 @@
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: 24px 32px 24px 8px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.inputContainerError .input {
+  background-color: var(--form-error-background-hover);
+  color: var(--form-error-text);
+}
+
+.inputLabel {
+  position: absolute;
+  top: 25px;
+  left: 8px;
+  font-size: 1rem;
+  transition-property: top, left, font-size;
+  transition-duration: 0.25s;
+}
+
+.input:focus + .inputLabel,
+.input:not([value=""]) + .inputLabel {
+  top: 4px;
+  font-size: 0.75rem;
+}
+
+.input:disabled,
+.input:disabled:hover,
+.input:disabled:focus {
+  background-color: var(--form-default-background-disabled);
+  color: var(--form-default-text-disabled);
+}
+
+.inputError {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 0.75rem;
+  font-style: italic;
+}

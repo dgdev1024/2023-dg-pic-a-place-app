@@ -20,7 +20,7 @@ export type ImageUploadResponse = {
 };
 
 export const config = {
-  api: { bodyParser: false }
+  api: { bodyParser: true }
 };
 
 const Handler = async (

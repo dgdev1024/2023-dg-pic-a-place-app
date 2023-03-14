@@ -23,6 +23,7 @@
       "@api/*": ["./pages/api/*"],
       "@com/*": ["./com/*"],
       "@lib/*": ["./lib/*"],
+      "@hooks/*": ["./hooks/*"],
       "@auth": ["./pages/api/auth/[...nextauth].ts"]
     }
   },

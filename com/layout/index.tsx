@@ -18,7 +18,7 @@ const Layout: FunctionComponent<LayoutProps> = ({ children }) => {
   return (
     <>
       <Header navShown={navShown} onNavButtonClicked={() => setNavShown(shown => !shown)} />
-      <Nav shown={navShown} session={session.data} />
+      <Nav shown={navShown} session={session.data} onLinkClicked={() => setNavShown(false)} />
       {children}
     </>
   );

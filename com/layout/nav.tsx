@@ -11,6 +11,7 @@ import Styles from './nav.module.css';
 export type NavProps = {
   session: Session;
   shown: boolean;
+  onLinkClicked: () => void;
   children?: ReactNode;
 };
 
@@ -38,12 +39,12 @@ const Nav = (props: NavProps) => {
         }
 
         {/* Display General Links */}
-        <Link href="/" className={`
+        <Link onClick={props.onLinkClicked} href="/" className={`
           ${Styles.navEntry}
           ${Styles.navLink}
         `} tabIndex={props.shown === true ? 0 : -1}>Home</Link>
 
-        <Link href="/random-places" className={`
+        <Link onClick={props.onLinkClicked} href="/random-places" className={`
           ${Styles.navEntry}
           ${Styles.navLink}
         `} tabIndex={props.shown === true ? 0 : -1}>Random Places</Link>
@@ -52,7 +53,7 @@ const Nav = (props: NavProps) => {
         {
           !props.session && (
             <>
-              <Link href="/sign-in" className={`
+              <Link onClick={props.onLinkClicked} href="/sign-in" className={`
                 ${Styles.navEntry}
                 ${Styles.navLink}
               `} tabIndex={props.shown === true ? 0 : -1}>Sign In</Link>
@@ -64,11 +65,11 @@ const Nav = (props: NavProps) => {
         {
           props.session && (
             <>
-              <Link href="/my-images" className={`
+              <Link onClick={props.onLinkClicked} href="/my-images" className={`
                 ${Styles.navEntry}
                 ${Styles.navLink}
               `} tabIndex={props.shown === true ? 0 : -1}>My Images</Link>
-              <Link href="/upload-image" className={`
+              <Link onClick={props.onLinkClicked} href="/upload-image" className={`
                 ${Styles.navEntry}
                 ${Styles.navLink}
               `} tabIndex={props.shown === true ? 0 : -1}>Upload Image</Link>

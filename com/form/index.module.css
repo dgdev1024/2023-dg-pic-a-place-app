@@ -1,0 +1,141 @@
+@keyframes animate-loading-symbol {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(90deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  75% {
+    transform: rotate(270deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  width: 95%;
+  max-width: 500px;
+}
+
+.formHeadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.formHeadingSymbol {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.formHeadingSymbol::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 12.5%;
+  width: 32px;
+  height: 4px;
+  transform: rotate(45deg);
+  background-color: var(--text-on-light);
+  transition-property: top, left, width, transform, background-color;
+  transition-duration: 0.25s;
+}
+
+.formHeadingSymbol::after {
+  content: '';
+  position: absolute;
+  bottom: 25%;
+  left: 12.5%;
+  width: 32px;
+  height: 4px;
+  transform: rotate(-45deg);
+  background-color: var(--text-on-light);
+  transition-property: bottom, left, width, transform, background-color;
+  transition-duration: 0.25s;
+}
+
+.formLoading .formHeadingSymbol::before {
+  top: calc(50% - 2px);
+  left: calc(50% - 20px);
+  width: 40px;
+  transform: rotate(0deg);
+  animation-name: animate-loading-symbol;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.formLoading .formHeadingSymbol::after {
+  width: 0px;
+}
+
+.formError .formHeadingSymbol::before {
+  width: 40px;
+  left: calc(50% - 20px);
+  top: 45%;
+  background-color: red;
+}
+
+.formError .formHeadingSymbol::after {
+  width: 40px;
+  left: calc(50% - 20px);
+  bottom: 45%;
+  background-color: red;
+}
+
+.formOk .formHeadingSymbol::before {
+  top: calc(100% - 22px);
+  left: 0px;
+  width: 20px;
+  background-color: darkgreen;
+}
+
+.formOk .formHeadingSymbol::after {
+  bottom: 24px;
+  left: 9px;
+  width: 38px;
+  background-color: darkgreen;
+}
+
+.formMessageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-style: italic;
+}
+
+.formStatusMessage {
+  font-weight: 600;
+}
+
+.formError .formHeading,
+.formError .formStatusMessage {
+  color: var(--form-error-text);
+}
+
+.formOk .formHeading,
+.formOk .formStatusMessage {
+  color: var(--form-ok-text);
+}
+
+.formElementContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+}
