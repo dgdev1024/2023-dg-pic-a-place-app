@@ -1,17 +1,20 @@
 /**
- * @file pages / sign-in.tsx
+ * @file pages / user-setup.tsx
  */
 
-import SignInForm from "@com/sign-in";
+import UserSetupForm from "@com/user-setup/form";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
+import { useSession } from "next-auth/react";
 import { authOptions } from "./api/auth/[...nextauth]";
 
-const SignInPage = () => {
+const UserSetupPage = () => {
+  const session = useSession();
+
   return (
     <section className="section">
       <div className="container containerLeftDesktop">
-        <SignInForm />
+        <UserSetupForm session={session.data} />
       </div>
     </section>
   );
@@ -19,11 +22,10 @@ const SignInPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const session = await getServerSession(req, res, authOptions);
-
-  if (session) {
+  if (!session) {
     return {
       redirect: {
-        destination: '/',
+        destination: '/sign-in',
         permanent: false
       }
     };
@@ -34,6 +36,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       session
     }
   };
-}
+};
 
-export default SignInPage;
+export default UserSetupPage;

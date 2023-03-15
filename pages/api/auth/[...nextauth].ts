@@ -30,6 +30,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  pages: {
+    signIn: '/sign-in',
+    newUser: '/user-setup'
+  }
 };
 
 export default NextAuth(authOptions);
